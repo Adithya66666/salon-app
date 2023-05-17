@@ -1,24 +1,56 @@
-import logo from './logo.svg';
+import { BrowserRouter as Router,  Route, Routes } from "react-router-dom";
 import './App.css';
 
+import NavBar from "./components/NavBar"
+
+import { Home } from './components/pages/Home';
+import { Login } from './components/pages/Login';
+import { Register } from './components/pages/Register';
+import { Footer } from "./components/pages/Footer";
+import { ViewAppointment } from "./components/pages/ViewAppointment";
+import { ViewService } from "./components/pages/ViewService";
+import { Profile } from "./components/pages/Profile";
+import { Seller } from "./components/pages/Seller";
+import { Admin } from "./components/pages/Admin";
+import { AdminLogin } from "./components/pages/AdminLogin";
+
+import PrivateRoute from "./privateRoute";
+import PrivateAdminRoute from "./privateAdminRoute";
+
 function App() {
+
+  const userKey = sessionStorage.getItem('userkey');
+  const userType = sessionStorage.getItem('usertype');
+
+  var userLoggedInStatus = false;
+  if(userKey !== null && userType !== null){
+    userLoggedInStatus = true;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Router>
+        <NavBar 
+        isLoggedIn={userLoggedInStatus}
+        userType={userType}
+        />
+
+        <Routes>
+          <Route path="/" element={<PrivateRoute><Home/></PrivateRoute>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/register" element={<Register/>} />
+          <Route path="/viewAppointment/:appointmentId" element={<PrivateRoute><ViewAppointment/></PrivateRoute>}/>
+          <Route path="/viewService/:serviceId" element={<PrivateRoute><ViewService/></PrivateRoute>}/>
+          <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>}/>
+          <Route path="/seller" element={<PrivateRoute><Seller/></PrivateRoute>}/>
+          <Route path="/admin" element={<PrivateAdminRoute><Admin/></PrivateAdminRoute>}/>
+          <Route path="/adminlogin" element={<AdminLogin/>}/>
+        </Routes>
+      </Router>
+
+      <Footer/>
+
+    </>
   );
 }
 

@@ -1,0 +1,150 @@
+.main{
+
+}
+.topBar{
+    width: 100%;
+    padding: .5%;
+    border-bottom: 1px solid gray;
+    margin-bottom: 20px;
+}
+.topBarActions{
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.small_main_btn{
+    width: 150px;
+    font-size: .9rem;
+    background-color: white;
+    border: 2px solid gray;
+    border-radius: 20px;
+    margin: 0 20px 0 20px;
+}
+
+.contentContainer{
+    max-width: 1600px;
+    min-height: 100vh;
+    padding: 2%;
+    margin: 0 auto;
+}
+.sub_text_wide{
+    color: gray;
+    font-size: .9rem;
+    width: 100%;
+    text-align: center;
+}
+
+
+
+/*home loop*/
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 50px 0;
+  }
+  
+  .card {
+    width: 300px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    margin: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .cardAdmin {
+    width: 500px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    margin: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-image {
+    width: 100%;
+    height: auto;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+  
+  .card-content {
+    padding: 16px;
+  }
+  
+  .card-title {
+    margin-top: 0;
+  }
+  
+  .card-description {
+    color: #555555;
+  }
+  
+
+  .rateBar{
+    padding: 1px;
+    background-color: black;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+
+  .rateBar img{
+    width: 15px;
+  }
+  .rateBar h5{
+    color: white;
+    margin: 5px;
+  }
+
+
+  /*VIEW SALON*/
+  .rateBar_viewAppointment{
+    display: flex;
+  }
+  .rateBar_viewAppointment img{
+    width: 20px;
+    height: auto;
+  }
+  .twoElements{
+    display: flex;
+  }
+  .twoElement_element{
+    width: 100%;
+    padding: 10px;
+  }
+  .twoElement_element img{
+    width: 100%;
+    height: auto;
+  }
+  .topViewBar{
+    width: 100%;
+    display: flex;
+    padding: 0 0 20px 0;
+  }
+  .imgViewBar{
+    border: 1px solid gray;
+    padding: 10px;
+    margin: 0 20px 0 0;
+  }
+  .imgViewBar img{
+    width: 150px;
+  }
+
+  .formContainer{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+  .appintmentDataCon{
+    width: 50%;
+    border: 1px solid rgb(207, 207, 207);
+    padding: 30px;
+    border-radius: 20px;
+    margin: 30px;
+  }
+  .pendingConfirmation{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }

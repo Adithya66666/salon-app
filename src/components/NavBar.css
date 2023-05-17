@@ -1,0 +1,80 @@
+/*.logoContainer{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.logoContainer h3{
+    margin-top: 10px;
+    margin-left: 5px;
+}
+.brandNameLogo{
+    width: 40px;
+    height: auto;
+}*/
+
+
+body {
+    font-family: "Open Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #dfe6e9;
+  }
+  
+  ul {
+    margin: 0;
+    padding: 1em;
+  }
+  ul li {
+    list-style: none;
+  }
+  ul li a {
+    padding: 1em;
+    color: white;
+    text-decoration: none;
+    -webkit-transition: background-color 0.5s;
+    -o-transition: background-color 0.5s;
+    transition: background-color 0.5s, color 0.5s;
+  }
+  ul li a:hover {
+    border-bottom: 1px solid white;
+  }
+  ul li a .contact {
+    border: 1px solid white;
+  }
+  
+  .nav {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    background: linear-gradient(to bottom right, #5d9cec, #967adc);
+    color: white;
+  }
+  .nav .slam-left {
+    margin-right: auto;
+  }
+  
+  @media all and (max-width: 500px) {
+    ul {
+      padding: 0;
+    }
+    ul li {
+      width: 100%;
+    }
+    ul li a {
+      display: block;
+      text-align: center;
+    }
+  
+    .nav {
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
+    .nav .slam-left {
+      margin-right: 0;
+    }
+  }
