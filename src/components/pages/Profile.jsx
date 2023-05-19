@@ -86,50 +86,112 @@ export const Profile = (e) => {
       getData();
     }, []); // Empty dependency array
   
+    const [cardsUpComing, setCardsUpComing] = useState([]);
+    const [cardsCompleted, setCardsCompleted] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [currentView, setCurrentView] = useState("Upcoming Appointments");
 
-    const cards = [
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        {
-          title: 'Card 2',
-          description: 'This is the description for Card 2',
-          imageUrl: 'salonCard.jpg',
-        },
-        // Add more cards as needed
-      ];
+
+    const getDataUpComing = async () => {
+      setLoading(true);
+      setCurrentView("Upcoming Appointments")
+      const dbRef = ref(getDatabase());
+      const snapshot = await get(child(dbRef, `Appointment`));
+        if (snapshot.exists()) {
+          const tempCards = [];
+          snapshot.forEach((childSnapshot) => {
+            if(childSnapshot.child("userid").val() === auth.currentUser.uid && 
+            childSnapshot.child("status").val() === "pending"){
+    
+              const data = {
+                userid: childSnapshot.child("userid").val(),
+                sellerId: childSnapshot.child("sellerId").val(),
+                appointmentId: childSnapshot.child("appointmentId").val(),
+                year: childSnapshot.child("year").val(),
+                month: childSnapshot.child("month").val(),
+                date: childSnapshot.child("date").val(),
+                time: childSnapshot.child("time").val(),
+                paymentMethod: childSnapshot.child("paymentMethod").val(),
+                serviceId: childSnapshot.child("serviceId").val(),
+                createdDate: childSnapshot.child("createdDate").val(),
+                status: childSnapshot.child("status").val(),
+                cName:childSnapshot.child("cName").val(),
+                businessName:childSnapshot.child("businessName").val(),
+                serviceName:childSnapshot.child("serviceName").val(),
+              };
+              tempCards.push(data);
+            }
+          })
+    
+          setCardsUpComing(tempCards);
+          setLoading(false);
+    
+        } else {
+    
+        }
+    }
+  
+    
+      const getDataCompleted = async () => {
+        setLoading(true);
+        setCurrentView("Completed Appointments")
+        const dbRef = ref(getDatabase());
+        const snapshot = await get(child(dbRef, `Appointment`));
+          if (snapshot.exists()) {
+            const tempCards = [];
+            snapshot.forEach((childSnapshot) => {
+              if(childSnapshot.child("userid").val() === auth.currentUser.uid && 
+              childSnapshot.child("status").val() === "completed"){
+                
+                const data = {
+                  userid: childSnapshot.child("userid").val(),
+                  sellerId: childSnapshot.child("sellerId").val(),
+                  appointmentId: childSnapshot.child("appointmentId").val(),
+                  year: childSnapshot.child("year").val(),
+                  month: childSnapshot.child("month").val(),
+                  date: childSnapshot.child("date").val(),
+                  time: childSnapshot.child("time").val(),
+                  paymentMethod: childSnapshot.child("paymentMethod").val(),
+                  serviceId: childSnapshot.child("serviceId").val(),
+                  createdDate: childSnapshot.child("createdDate").val(),
+                  status: childSnapshot.child("status").val(),
+                  cName:childSnapshot.child("cName").val(),
+                  businessName:childSnapshot.child("businessName").val(),
+                  serviceName:childSnapshot.child("serviceName").val(),
+                };
+                tempCards.push(data);
+              }
+            })
+      
+            setCardsCompleted(tempCards);
+            setLoading(false);
+      
+          } else {
+      
+          }
+      }
+
+      useEffect(() => {
+        getData();
+        getDataUpComing();
+        getDataCompleted();
+
+      }, []);
+    
+      const deleteAppointment = async (id) => {
+        const db = getDatabase();
+        const serviceRef = ref(db, `Appointment/${id}`);
+      
+        try {
+          await remove(serviceRef);
+          console.log('Appointment deleted successfully');
+          getDataUpComing()
+          // Perform any additional actions after deleting the service
+        } catch (error) {
+          console.error('Failed to delete Appointment:', error);
+          // Handle the error accordingly
+        }
+      }
 
   return (
     <>
@@ -159,7 +221,6 @@ export const Profile = (e) => {
                     <img src="../user.png" alt="" />
                 </div>
                 <div>
-
                     <form onSubmit={handlePersonalChange}>
                     <h1>Edit Personal Details</h1>
                     <h6>First Name</h6>
@@ -173,27 +234,22 @@ export const Profile = (e) => {
                     <button className="small_main_btn mt-3">Update</button>
                     <button className="small_main_btn" onClick={() => setViewUpdate(false)}>Back</button>
                     </form>
-                
                 </div>
             </div>
 
             </> }
 
-            
-
-            <div className="border-bottom p-3">
-            <button className="small_main_btn mt-5">Upcoming Appointments</button>
-            <button className="small_main_btn mt-5">Completed Appointments</button>
-            </div>
-
             <div className="p-3 m-4">
                 <h5>Upcoming Appointments</h5>
                 <div className="card-container cursor-pointer">
-                {cards.map((card, index) => (
+                {cardsUpComing.map((card, index) => (
                         <div className="card" key={index}>
                         <div className="card-content">
-                            <h2 className="card-title">09:00 AM</h2>
-                            <p className="card-description">09:00 AM - 10:00 AM</p>
+                            <h2 className="card-title">Service: { card.serviceName }</h2>
+                            <p className="card-description">Salon : { card.businessName }</p>
+                            <p className="card-description">Date : { card.year }/{ card.month }/{ card.date }</p>
+                            <p className="card-description">Time : { card.time }</p>
+                            <button className="btn btn-danger" onClick={() => deleteAppointment(card.appointmentId)}>Delete</button>
                         </div>
                         </div>
                     ))}
@@ -204,11 +260,14 @@ export const Profile = (e) => {
             <div className="p-3 m-4">
                 <h5>Completed Appointments</h5>
                 <div className="card-container cursor-pointer">
-                {cards.map((card, index) => (
+                {cardsCompleted.map((card, index) => (
                         <div className="card" key={index}>
                         <div className="card-content">
-                            <h2 className="card-title">09:00 AM</h2>
-                            <p className="card-description">09:00 AM - 10:00 AM</p>
+                            <h4 className="card-title">Service: { card.serviceName }</h4>
+                            <p className="card-description">Salon : { card.businessName }</p>
+                            <p className="card-description">Date : { card.year }/{ card.month }/{ card.date }</p>
+                            <p className="card-description">Time : { card.time }</p>
+                            <p>completed</p>
                         </div>
                         </div>
                     ))}

@@ -6,9 +6,11 @@
     padding: .5%;
     border-bottom: 1px solid gray;
     margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 }
 .topBarActions{
-    width: 100%;
     justify-content: center;
     align-items: center;
     display: flex;
@@ -34,7 +36,14 @@
     width: 100%;
     text-align: center;
 }
-
+.your-service-container{
+  overflow-y: scroll;
+  height: 80vh;
+}
+.your-service-view{
+  overflow-y: scroll;
+  height: 80vh;
+}
 
 
 /*home loop*/
@@ -90,6 +99,7 @@
 
   .rateBar img{
     width: 15px;
+    height: auto;
   }
   .rateBar h5{
     color: white;
@@ -147,4 +157,8 @@
     justify-content: center;
     align-items: center;
     display: flex;
+  }
+  .time-slot:hover{
+    background-color: rgb(211, 211, 211);
+    border-radius: 2px solid gray;
   }

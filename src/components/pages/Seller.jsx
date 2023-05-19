@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../config/firebase";
 import { useState,useEffect } from "react";
-import { getDatabase, ref, child, get, set,remove } from "firebase/database";
+import { getDatabase, ref, child, get, set,remove, serverTimestamp } from "firebase/database";
 import { v4 as uuidv4 } from 'uuid';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -54,14 +54,73 @@ export const Seller = () => {
     return () => unsubscribe();
   }, []);
 
-        
+
+  const [selectedServiceId,setSelectedServiceId] = useState("")
+  const [viewServiceBox,setViewServiceBox] = useState(false)
+  const [viewServiceBoxLoading,setViewServiceBoxLoading] = useState(false)
+
+  //selected service data
+  const [selectedServiceName,setSelectedServiceName] = useState("")
+  const [selectedServiceDescription,setSelectedServiceDescription] = useState("")
+  const [selectedServiceAmount,setSelectedServiceAmount] = useState("")
+  const [selectedServiceImage,setSelectedServiceImage] = useState("")
+  const [selectedSellerId,setSelectedSellerId] = useState("")
+
   const navigate = useNavigate();
-  const viewService = (id) => {
-    navigate(`/viewService/${id}`);
+
+  const [businessName,setbusinessName] = useState("")
+  const [ownerName,setownerName] = useState("")
+  const [phone,setPhone] = useState("")
+  const [address,setAddress] = useState("")
+  const [rate,setRate] = useState("")
+
+
+  const getSalon = async () => {
+    setLoading(true);
+    const dbRef = ref(getDatabase());
+    const snapshot = await get(child(dbRef, `Seller/${auth.currentUser.uid}`));
+      if (snapshot.exists()) {
+        setbusinessName(snapshot.child("businessName").val())
+        setownerName(snapshot.child("ownerName").val())
+        setPhone(snapshot.child("phone").val())
+        setAddress(snapshot.child("address").val())
+        setRate("5.0")
+      } else {
+      }
+      setLoading(false);
+  }
+  useEffect(() => {
+    getSalon();
+  }, []);
+
+  const viewService = async (id) => {
+    setViewServiceBoxLoading(true);
+    setSelectedServiceId(id)
+    setViewServiceBox(true);
+
+    const dbRef = ref(getDatabase());
+  const snapshot = await get(child(dbRef, `Service/${id}`));
+  if (snapshot.exists()) {
+
+    setSelectedServiceName(snapshot.child("serviceName").val());
+    setSelectedServiceDescription(snapshot.child("serviceDescription").val()); 
+    setSelectedServiceAmount(snapshot.child("amount").val()); 
+    setSelectedSellerId(snapshot.child("sellerId").val()); 
+
+    const storageReff = storageRef(storage,`service/${snapshot.child("serviceId").val()}`);
+    const imageUrl = getDownloadURL(storageReff);
+    const url = await imageUrl;
+    setSelectedServiceImage(url);
+    setViewServiceBoxLoading(false);
+  }
+
   }
 
   const changeView = () => {
     navigate(`/`);
+  }
+  const viewAppointments = () => {
+    navigate(`/Seller/Appointments`);
   }
 
   const handleApply = async (e) => {
@@ -129,14 +188,45 @@ export const Seller = () => {
   }
 
   const [cards, setCards] = useState([]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+
+const loadImages = async () => {
+  const dbRef = ref(getDatabase());
+  const snapshot = await get(child(dbRef, "Service"));
+  if (snapshot.exists()) {
+    const promises = [];
+    snapshot.forEach((childSnapshot) => {
+      if (childSnapshot.child("sellerId").val() === auth.currentUser.uid) {
+        const storageReff = storageRef(
+          storage,
+          `service/${childSnapshot.child("serviceId").val()}`
+        );
+        const promise = getDownloadURL(storageReff);
+        promises.push(promise);
+      }
+    });
+
+    const urls = await Promise.all(promises);
+    const temp = [];
+    urls.forEach((url) => {
+      temp.push(url)
+    });
+    setImages(temp);
+
+    // setImages(temp);
+  }
+};
+
 
 const getData = async () => {
-  setLloader(true);
+  setLoading(true);
   const dbRef = ref(getDatabase());
   const snapshot = await get(child(dbRef, `Service`));
     if (snapshot.exists()) {
       const tempCards = [];
-      snapshot.forEach(async(childSnapshot) => {
+      snapshot.forEach((childSnapshot) => {
         if(childSnapshot.child("sellerId").val() === auth.currentUser.uid){
           const data = {
             serviceName: childSnapshot.child("serviceName").val(),
@@ -150,27 +240,77 @@ const getData = async () => {
       })
 
       setCards(tempCards);
-      setLloader(false);
+      setLoading(false);
 
     } else {
 
     }
+
+    loadImages()
 }
 
   useEffect(() => {
     getData();
   }, []);
 
+
+  const deleteService = async (serviceId) => {
+    const db = getDatabase();
+    const serviceRef = ref(db, `Service/${serviceId}`);
+  
+    try {
+      await remove(serviceRef);
+      console.log('Service deleted successfully');
+      getData()
+      setViewServiceBox(false)
+      setViewServiceBoxLoading(false)
+      // Perform any additional actions after deleting the service
+    } catch (error) {
+      console.error('Failed to delete service:', error);
+      // Handle the error accordingly
+    }
+  }
+
+  const resetService = async (serviceId) => {
+    viewService(serviceId)
+  }
+
+
+  const handleUpdateService = async (e) => {
+    e.preventDefault()
+    const firebaseData = {
+      serviceName: e.target.serviceName.value,
+      serviceDescription: e.target.serviceDescription.value,
+      amount: e.target.serviceAmount.value,
+      serviceId: selectedServiceId,
+      sellerId: selectedSellerId,
+    }
+    const db = getDatabase();
+    const dataRef = ref(db, `Service/${selectedServiceId}`);
+    await set(dataRef, firebaseData)
+    .then(() => {
+      viewService(selectedServiceId)
+    })
+    .catch((error) => {
+      alert("Failed to update service. Error occurred")
+    });
+  }
+
   return (
     <>
 
     <div>
-      <div className="topBar">
+        <div className="topBar">
           <div className="topBarActions">
-            <h6>Switch your view seller to buyer</h6>
-            <button className="small_main_btn" onClick={changeView}>Swtich to Buyer</button>
+            <h6 className="text m-2">Switch your view seller to buyer</h6>
+            <button className="btn btn-primary" onClick={changeView}>Swtich to Buyer</button>
+          </div>
+          <div className="topBarActions">
+            <h6 className="text m-2">Received Appointments</h6>
+            <button className="btn btn-warning" onClick={viewAppointments}>Appointments</button>
           </div>
         </div>
+
       <div className="contentContainer">
 
       { loader && <>
@@ -224,12 +364,13 @@ const getData = async () => {
 
         <div className="border-bottom mb-4 topViewBar">
           <div className="imgViewBar">
-              <img src="../salonCard.jpg" alt="" />
+              <img src="../hairstyle.png" alt="" />
           </div>
           <div>
-              <h1>Salon Name</h1>
-              <h6>Salon owners name</h6>
-              <h6>5.0 Rating</h6>
+              <h1>{ businessName }</h1>
+              <h6>{ ownerName }</h6>
+              <h6>{ phone }</h6>
+              <h6>{ address }</h6>
           </div>
         </div>
 
@@ -269,15 +410,14 @@ const getData = async () => {
           </form>
       </div>
       }
-        
-        <div className="card-container">
+
+      
+      <div className="w-100 border d-flex">
+
+      <div className="card-container w-50 your-service-container">
           {cards.map((card, index) => (
-              <div className="card" key={index} onClick={() => viewService(card.title)}>
-                <img src={card.img} alt="" className="salonCardImg" />
-                <div className="rateBar">
-                  <img src="star.png" alt="" className="rateBarStart" />
-                  <h5>5.0</h5>
-                </div>
+              <div className="card" key={index} onClick={() => viewService(card.serviceId)}>
+                <img src={images[index]} alt="" className="salonCardImg" />
                 <div className="card-content">
                     <h2 className="card-title">{card.serviceName}</h2>
                     <p className="card-description">{card.serviceDescription}</p>
@@ -286,6 +426,64 @@ const getData = async () => {
               </div>
           ))}
         </div>
+        <div className="card-container w-50 your-service-view">
+          <h3 className="text text-secondary">View Service</h3>
+
+          { viewServiceBox && !viewServiceBoxLoading && <>
+            
+            <div className="w-100 d-flex justify-content-center align-items-center flex-column">
+              <img src={selectedServiceImage} width={300} alt="" />
+              <h5 className="mt-3 text text-secondary">{selectedServiceName}</h5>
+              <h6 className="m-3 text text-secondary text-center p-2">{selectedServiceDescription}</h6>
+              <h4 className="m-4 text text-secondary">Rs.{selectedServiceAmount}.00</h4>
+            </div>
+
+
+            <form onSubmit={handleUpdateService} className="w-75">
+              <label htmlFor="serviceName">Service Name</label>
+              <input type="text" placeholder={selectedServiceName} name="serviceName" id="serviceName" className="w-100"/>
+
+              <label htmlFor="serviceName">Service Description</label>
+              <input type="text" placeholder={selectedServiceDescription} name="serviceDescription" id="serviceDescription" className="w-100"/>
+
+              <label htmlFor="serviceName">Service Amount</label>
+              <input type="number" placeholder={selectedServiceAmount} name="serviceAmount" id="serviceAmount" className="w-100"/>
+
+              <div className="w-100 d-flex justify-content-center align-items-center">
+                <button type="button" className="btn btn-success w-50 m-2"  onClick={() => resetService(selectedServiceId)}>Reset</button>
+                <button type="submit" className="btn btn-warning w-50">Update</button>
+              </div>
+            </form>
+
+
+            <div className="w-100 d-flex justify-content-center align-items-center flex-column">
+              <button type="button" className="btn btn-danger w-50 m-2" onClick={() => deleteService(selectedServiceId)}>Delete</button>
+            </div>
+
+          </> }
+
+            { viewServiceBox && viewServiceBoxLoading && <>
+            
+            <div className="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
+              <h5 className="mt-3 text text-secondary">Loading...</h5>
+            </div>
+
+            </> }
+
+            { !viewServiceBox && !viewServiceBoxLoading && <>
+            
+              <div className="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
+              <img src="nodata.png" width="300" alt="" />
+              <h5 className="mt-3 text text-secondary">Select a service to view</h5>
+              </div>
+
+            </> }
+
+        </div>
+
+      </div>
+        
+        
       </> }
       </div>
     </div>

@@ -13,6 +13,7 @@ import { Profile } from "./components/pages/Profile";
 import { Seller } from "./components/pages/Seller";
 import { Admin } from "./components/pages/Admin";
 import { AdminLogin } from "./components/pages/AdminLogin";
+import { SellerAppointments } from "./components/pages/SellerAppointments";
 
 import PrivateRoute from "./privateRoute";
 import PrivateAdminRoute from "./privateAdminRoute";
@@ -39,12 +40,13 @@ function App() {
           <Route path="/" element={<PrivateRoute><Home/></PrivateRoute>} />
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
-          <Route path="/viewAppointment/:appointmentId" element={<PrivateRoute><ViewAppointment/></PrivateRoute>}/>
+          <Route path="/viewAppointment/:salonId" element={<PrivateRoute><ViewAppointment/></PrivateRoute>}/>
           <Route path="/viewService/:serviceId" element={<PrivateRoute><ViewService/></PrivateRoute>}/>
           <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>}/>
           <Route path="/seller" element={<PrivateRoute><Seller/></PrivateRoute>}/>
           <Route path="/admin" element={<PrivateAdminRoute><Admin/></PrivateAdminRoute>}/>
           <Route path="/adminlogin" element={<AdminLogin/>}/>
+          <Route path="/seller/appointments" element={<SellerAppointments/>}/>
         </Routes>
       </Router>
 

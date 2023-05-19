@@ -4,91 +4,121 @@ import './Css/Login.css';
 import { useNavigate } from "react-router-dom";
 
 import { useParams } from "react-router-dom";
+import { useState,useEffect } from 'react';
+
+import { auth } from "../config/firebase";
+import { getDatabase, ref, child, get, set,remove, serverTimestamp } from "firebase/database";
+import { v4 as uuidv4 } from 'uuid';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+
 
 export const ViewAppointment = () => {
-
-    const {appointmentId} = useParams();
-
-
     
   const navigate = useNavigate();
   const viewSalon = (id) => {
     navigate(`/viewService/${id}`);
   }
+
+  const [cards, setCards] = useState([]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const {salonId} = useParams();
+
+  const storage = getStorage();
+
+  const loadImages = async () => {
+    const dbRef = ref(getDatabase());
+    const snapshot = await get(child(dbRef, "Service"));
+    if (snapshot.exists()) {
+      const promises = [];
+      snapshot.forEach((childSnapshot) => {
+        if (childSnapshot.child("sellerId").val() === auth.currentUser.uid) {
+          const storageReff = storageRef(
+            storage,
+            `service/${childSnapshot.child("serviceId").val()}`
+          );
+          const promise = getDownloadURL(storageReff);
+          promises.push(promise);
+        }
+      });
   
+      const urls = await Promise.all(promises);
+      const temp = [];
+      urls.forEach((url) => {
+        temp.push(url)
+      });
+      setImages(temp);
   
-    const cards = [
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      {
-        title: 'Card 2',
-        description: 'This is the description for Card 2',
-        imageUrl: 'salonCard.jpg',
-      },
-      // Add more cards as needed
-    ];
+      // setImages(temp);
+    }
+  };
+
+  const getData = async () => {
+    const dbRef = ref(getDatabase());
+    const snapshot = await get(child(dbRef, `Service`));
+      if (snapshot.exists()) {
+        const tempCards = [];
+        snapshot.forEach((childSnapshot) => {
+          if(childSnapshot.child("sellerId").val() === salonId){
+            const data = {
+              serviceName: childSnapshot.child("serviceName").val(),
+              serviceDescription: childSnapshot.child("serviceDescription").val(),
+              amount: childSnapshot.child("amount").val(),
+              serviceId: childSnapshot.child("serviceId").val(),
+              sellerId: childSnapshot.child("sellerId").val(),
+            };
+            tempCards.push(data);
+          }
+        })
+  
+        setCards(tempCards);
+      } else {
+  
+      }
+  
+      loadImages()
+  }
 
 
-    const rates = [
-        {
-          name: 'Adithya Bandara',
-          rate: '5.0',
-          comment: 'This salon is amazing! I had gotten an unfortunate haircut from another establishment and she spent the time fixing every detail of my hair until it was perfect. She’s so skilled and so sweet. Highly recommend!',
-        },
-        {
-          name: 'Adithya Bandara',
-          rate: '5.0',
-          comment: 'This salon is amazing! I had gotten an unfortunate haircut from another establishment and she spent the time fixing every detail of my hair until it was perfect. She’s so skilled and so sweet. Highly recommend!',
-        },
-        {
-            name: 'Adithya Bandara',
-            rate: '5.0',
-            comment: 'This salon is amazing! I had gotten an unfortunate haircut from another establishment and she spent the time fixing every detail of my hair until it was perfect. She’s so skilled and so sweet. Highly recommend!',
-          },
-          {
-            name: 'Adithya Bandara',
-            rate: '5.0',
-            comment: 'This salon is amazing! I had gotten an unfortunate haircut from another establishment and she spent the time fixing every detail of my hair until it was perfect. She’s so skilled and so sweet. Highly recommend!',
-          },
-          {
-            name: 'Adithya Bandara',
-            rate: '5.0',
-            comment: 'This salon is amazing! I had gotten an unfortunate haircut from another establishment and she spent the time fixing every detail of my hair until it was perfect. She’s so skilled and so sweet. Highly recommend!',
-          },
-      ];
+  const [businessName,setbusinessName] = useState("")
+  const [ownerName,setownerName] = useState("")
+  const [phone,setPhone] = useState("")
+  const [address,setAddress] = useState("")
+  const [rate,setRate] = useState("")
+
+
+  const getSalon = async () => {
+    setLoading(true);
+    const dbRef = ref(getDatabase());
+    const snapshot = await get(child(dbRef, `Seller/${salonId}`));
+      if (snapshot.exists()) {
+        setbusinessName(snapshot.child("businessName").val())
+        setownerName(snapshot.child("ownerName").val())
+        setPhone(snapshot.child("phone").val())
+        setAddress(snapshot.child("address").val())
+        setRate("5.0")
+      } else {
+      }
+      setLoading(false);
+  }
+
+    useEffect(() => {
+      getData();
+    }, []);
+
+
+    useEffect(() => {
+      getSalon();
+    }, []);
+
+    const rates = [];
+
+    const rateLoad = async () => {
+        alert()
+    }
+
 
   return (
     <>
@@ -97,14 +127,26 @@ export const ViewAppointment = () => {
             <div className="border-bottom mb-4 topViewBar">
                 
                 <div className="imgViewBar">
-                    <img src="../salonCard.jpg" alt="" />
+                <img src="../hairstyle.png" alt="" />
                 </div>
-                <div>
-                    <h1>Salon Name</h1>
-                    <h6>Salon owners name</h6>
-                    <h6>5.0 Rating</h6>
-                </div>
+                { !loading && <>
 
+                  <div>
+                    <h1>{businessName}</h1>
+                    <h6>Owner : {ownerName}</h6>
+                    <h6>Ratings : {rate}</h6>
+                    <h6>Address : {address}</h6>
+                    <h6>Phone Number : {phone}</h6>
+                  </div>
+                
+                </> }
+                { loading && <>
+
+                  <div>
+                    <h6>Loading...</h6>
+                  </div>
+                
+                </> }
             </div>
 
             <div className="twoElement_element">
@@ -112,22 +154,19 @@ export const ViewAppointment = () => {
 
                     <div className="card-container">
                     {cards.map((card, index) => (
-                        <div className="card" key={index} onClick={() => viewSalon(card.title)}>
-                        <img src={card.imageUrl} alt={card.title} className="salonCardImg" />
-                        <div className="rateBar"><img src="star.png" alt="" className="rateBarStart" /><h5>5.0</h5></div>
+                        <div className="card" key={index} onClick={() => viewSalon(card.serviceId)}>
+                        <img src={images[index]} alt={card.title} className="salonCardImg" />
                         <div className="card-content">
-                            <h2 className="card-title">{card.title}</h2>
-                            <p className="card-description">{card.description}</p>
+                            <h2 className="card-title">{card.serviceName}</h2>
+                            <p className="card-description">{card.serviceDescription}</p>
+                            <h3 className="card-title text text-center">Rs.{card.amount}.00</h3>
                         </div>
                         </div>
                     ))}
                     </div>
-
                 </div>
-
                 <div className="twoElement_element">
                     <h5 className="border-bottom p-2">Customer Ratings</h5>
-
                     <div className="card-container">
                     {rates.map((rate, index) => (
                         <div className="card" key={index}>
@@ -138,7 +177,6 @@ export const ViewAppointment = () => {
                         </div>
                     ))}
                     </div>
-
                 </div>
 
         </div>
