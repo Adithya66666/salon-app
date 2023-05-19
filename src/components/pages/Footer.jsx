@@ -12,11 +12,7 @@ export const Footer = () => {
         <div class="text-center">
             <h6 className="text-center w-100">About</h6>
             <p class="text-justify">
-                Hospital Management System is the most accredited system in the Sri Lankan 
-                healthcare sector. Since 2002, Lanka Hospitals has revolutionized 
-                the healthcare industry through infrastructure development and
-                advancement of products and services, with a view to deliver 
-                healthcare that is on par with global medical standards.
+            Our committed and competent team is here to help keep your hair, nails, skin, and body healthy and beautiful. In addition to our regular beauty services such as pedicures, manicures, and hair services we will continue to perfect our skills and keep educated on all the latest styles. Enjoy our wide range of services in a cozy and luxurious environment. We look forward to serving you!
             </p>
         </div>
     </div>
