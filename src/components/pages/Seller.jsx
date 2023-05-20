@@ -20,6 +20,9 @@ export const Seller = () => {
   const [viewAddService,setAddService] = useState(false);
 
 
+  const [viewReviews,setViewReviews] = useState(false)
+
+
   //checking this person is registered as a seller
   const checkUser = async (userId) => {
     setLloader(true);
@@ -296,6 +299,39 @@ const getData = async () => {
     });
   }
 
+
+  const [reviews, setReviews] = useState([]);
+
+    const getReviews = async () => {
+      const dbRef = ref(getDatabase());
+      const snapshot = await get(child(dbRef, `Review`));
+        if (snapshot.exists()) {
+          const tempCards = [];
+          snapshot.forEach((childSnapshot) => {
+            if(childSnapshot.child("sellerId").val() === auth.currentUser.uid){
+              const data = {
+                starCount: childSnapshot.child("starCount").val(),
+                review: childSnapshot.child("review").val(),
+                sellerId: childSnapshot.child("sellerId").val(),
+                userId: childSnapshot.child("userId").val(),
+                date: childSnapshot.child("date").val(),
+                customerName: childSnapshot.child("customerName").val(),
+                reviewId: childSnapshot.key,
+              };
+              tempCards.push(data);
+            }
+          })
+    
+          setReviews(tempCards);
+        } else {
+    
+        }
+        loadImages()
+    }
+    useEffect(() => {
+      getReviews();
+    }, []);
+
   return (
     <>
 
@@ -371,10 +407,21 @@ const getData = async () => {
               <h6>{ ownerName }</h6>
               <h6>{ phone }</h6>
               <h6>{ address }</h6>
+
+              { !viewReviews && <>
+                <button className="btn btn-success" onClick={() => setViewReviews(true)}>View Reviews</button>
+              </>}
+              { viewReviews && <>
+                <button className="btn btn-success" onClick={() => setViewReviews(false)}>Back to home</button>
+              </>}
+
           </div>
         </div>
 
-        { !viewAddService &&  
+        { !viewReviews && <>
+        
+
+          { !viewAddService &&  
         <div className="w-100 mb-3 d-flex justify-content-left align-items-center">
         <h6>Add New Service</h6>
         <button className="btn btn-primary m-3" onClick={() => setAddService(true)}>Add Service</button>
@@ -482,7 +529,44 @@ const getData = async () => {
         </div>
 
       </div>
+
         
+        </>}
+
+        { viewReviews && <>
+        
+        <h4>Your Reviews</h4>
+
+        <div className="review-container">
+          {reviews.map((rate, index) => (
+              <div className="review-card" key={index}>
+                <div className="review-content">
+                    <div className="reviewTop">
+                      <div className="reviewInnerElement">
+                        <h3>{ rate.customerName }</h3>
+                        <div className="starRating">
+                          <div>{ rate.starCount } Stars</div>
+                          <div className="reviewStarsCon">
+                          {[...Array(rate.starCount)].map((_, index) => (
+                            <div key={index}>
+                              <img src="../yellow.png" alt="" />
+                            </div>
+                          ))}
+                          </div>
+                        </div> 
+                      </div>
+                      <div className="reviewInnerElement">{ rate.date }</div>
+                    </div>
+                    <div className="reviewBottom">
+                      { rate.review }
+                    </div>
+                </div>
+              </div>
+          ))}
+          </div>
+        
+        </>}
+
         
       </> }
       </div>

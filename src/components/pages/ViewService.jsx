@@ -1,5 +1,7 @@
 import React, {useEffect} from "react";
 import './Footer.css';
+import emailjs from 'emailjs-com';
+
 
 import { useParams } from "react-router-dom";
 import { useState } from 'react';
@@ -172,6 +174,7 @@ export const ViewService = () => {
         await set(dataRef, data)
         .then(() => {
           setAppointmentStep("Confirmed");
+          sendEmail(auth.currentUser.email,businessName,serviceName,cName,`${yearA}/${monthA}/${dayA}`,selectedTimeSlot)
         })
         .catch((error) => {
           alert("Failed to add appointment. Error occurred")
@@ -182,7 +185,9 @@ export const ViewService = () => {
     }
 
 
-    const PaymentForm = () => {
+    const PaymentForm = ({amount}) => {
+      const amountInt = parseInt(amount)
+      const fixedAmount = amountInt * 100;
       const handleToken = (token) => {
         const currentDate = new Date().toLocaleDateString();
 
@@ -209,6 +214,7 @@ export const ViewService = () => {
         set(dataRef, data)
         .then(() => {
           setAppointmentStep("Confirmed");
+          sendEmail(auth.currentUser.email,businessName,serviceName,cName,`${yearA}/${monthA}/${dayA}`,selectedTimeSlot)
         })
         .catch((error) => {
           alert("Failed to add appointment. Error occurred")
@@ -219,11 +225,37 @@ export const ViewService = () => {
           stripeKey="pk_test_51MSwdJASB7FocmM4BhD5aTfg3tRFmIiMcjiiswZYfSOWll3ESrmWR2mB7c8Tl35M3AaEotrnZGkWfSxdvW88nhjz00Yj3f3y8C"
           token={handleToken}
           name="Appointment Payment"
-          amount={1000}
+          amount={fixedAmount}
           currency="LKR"
         />
       );
     }
+
+
+    const sendEmail = async (email,businessName,service,customer,date,time) => {
+      const serviceId = 'service_hqwfjnr';
+      const templateId = 'template_bm55ntc';
+      const userId = 'GIjIwY9xVxSM6MDUt';
+  
+      const templateParams = {
+        to_email: email,
+        from_name: 'Your Name',
+        message: 'Hello, this is a test email!',
+        business_name: businessName,
+        service_name:service,
+        customer_name: customer,
+        date:date,
+        time: time,
+      };
+  
+      emailjs.send(serviceId, templateId, templateParams, userId)
+        .then((response) => {
+          console.log('Email sent!', response.status, response.text);
+        })
+        .catch((error) => {
+          console.error('Email error:', error);
+        });
+    };
     
 
 
@@ -345,7 +377,7 @@ export const ViewService = () => {
                     </table>
                     </div>
 
-                    <PaymentForm />
+                    <PaymentForm  amount={amountService} />
                     <button className="btn_main mt-3" onClick={() => payAndConfirm("offline")}>Pay At The Salon And Confirm The Appointment</button>
                     <button className="btn_main mt-3" onClick={() => setAppointmentStep("selectSlot")}>Back</button>
 

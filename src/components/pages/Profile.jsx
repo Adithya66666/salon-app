@@ -3,6 +3,7 @@ import './Footer.css';
 import { useState,useEffect } from "react";
 import { auth } from "../config/firebase";
 import { getDatabase, ref, child, get, set,remove } from "firebase/database";
+import emailjs, { send } from 'emailjs-com';
 
 export const Profile = (e) => {
 

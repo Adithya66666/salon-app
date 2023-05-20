@@ -162,3 +162,54 @@
     background-color: rgb(211, 211, 211);
     border-radius: 2px solid gray;
   }
+
+  .startContainer{
+    width: 60px;
+    height: 60px; 
+  }
+
+  .starArrayCon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+  }
+
+  .starArrayCon img{
+    padding: 10px;
+  }
+  .starArrayCon img:hover{
+    border-bottom: 1px solid gray;
+  }
+
+  .review-container{
+    padding: 2%;
+  }
+
+  .review-card{
+    border: 1px solid rgb(209, 209, 209);
+    padding: 2%;
+    margin: 15px 0;
+  }
+
+  .reviewStarsCon{
+    display: flex;
+    margin: 0 0 0 10px;
+  }
+  .reviewStarsCon img{
+    width: 20px;
+    margin: 2px;
+  }
+
+  .starRating{
+    display: flex;
+  }
+
+  .reviewTop{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgb(216, 216, 216);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
