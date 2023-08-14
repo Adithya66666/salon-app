@@ -3,9 +3,7 @@ import React from "react";
 
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
-import { useNavigate } from "react-router-dom";
-import { useState,useEffect } from "react";
-import { getDatabase, ref, child, get, set,remove } from "firebase/database";
+import { getDatabase, ref, child, get } from "firebase/database";
 
 export const AdminLogin = () => {
 

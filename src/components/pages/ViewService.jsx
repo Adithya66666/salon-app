@@ -75,11 +75,13 @@ export const ViewService = () => {
     const [cName,setCustomerName] = useState("")
 
     const getUser = async () => {
-      const dbRef = ref(getDatabase());
-      const snapshot = await get(child(dbRef, `User/${auth.currentUser.uid}`));
+      if (auth.currentUser) {
+        const dbRef = ref(getDatabase());
+        const snapshot = await get(child(dbRef, `User/${auth.currentUser.uid}`));
         if (snapshot.exists()) {
-          setCustomerName(`${snapshot.child("fname").val()} ${snapshot.child("lname").val()}`)
+          setCustomerName(`${snapshot.child("fname").val()} ${snapshot.child("lname").val()}`);
         }
+      }
     }
 
     

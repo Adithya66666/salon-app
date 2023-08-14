@@ -19,20 +19,25 @@ export const Profile = (e) => {
     const dbRef = ref(getDatabase());
 
     const getData = async () => {
-      const userId = auth.currentUser.uid
-
-      const snapshot = await get(child(dbRef, `User/${userId}`));
+      if (auth.currentUser) {
+        const userId = auth.currentUser.uid;
+        const snapshot = await get(child(dbRef, `User/${userId}`));
         if (snapshot.exists()) {
-            setUserEmail(snapshot.child("email").val())
-            setuserFname(snapshot.child("fname").val())
-            setUserLName(snapshot.child("lname").val())
-            setUserPhone(snapshot.child("phone").val())
-            setUserUsername(snapshot.child("username").val())
+          setUserEmail(snapshot.child("email").val());
+          setuserFname(snapshot.child("fname").val());
+          setUserLName(snapshot.child("lname").val());
+          setUserPhone(snapshot.child("phone").val());
+          setUserUsername(snapshot.child("username").val());
         } else {
           console.log("No data available");
         }
+      } else {
+        console.log("User is not logged in");
+      }
+    };
+    
 
-    }
+    
 
     const handlePersonalChange = async (e) => {
 

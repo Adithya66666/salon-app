@@ -31,12 +31,18 @@ export const ViewAppointment = () => {
   const [cName,setCustomerName] = useState("")
 
   const getUser = async () => {
-    const dbRef = ref(getDatabase());
-    const snapshot = await get(child(dbRef, `User/${auth.currentUser.uid}`));
+    if (auth.currentUser) {
+      const dbRef = ref(getDatabase());
+      const snapshot = await get(child(dbRef, `User/${auth.currentUser.uid}`));
       if (snapshot.exists()) {
-        setCustomerName(`${snapshot.child("fname").val()} ${snapshot.child("lname").val()}`)
+        setCustomerName(`${snapshot.child("fname").val()} ${snapshot.child("lname").val()}`);
       }
-  }
+    } else {
+      // Handle the case when auth.currentUser is null
+      console.log("User not logged in");
+    }
+  };
+  
   useEffect(() => {
     getUser()
   }, []);

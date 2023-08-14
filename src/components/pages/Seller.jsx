@@ -43,11 +43,13 @@ export const Seller = () => {
 
   }
 
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUserId(user.uid);
         checkUser(user.uid);
+        getSalon(); // Call getSalon only if the user is authenticated
       } else {
         setUserId(null);
       }
@@ -56,7 +58,6 @@ export const Seller = () => {
     // Cleanup the listener
     return () => unsubscribe();
   }, []);
-
 
   const [selectedServiceId,setSelectedServiceId] = useState("")
   const [viewServiceBox,setViewServiceBox] = useState(false)
@@ -78,10 +79,14 @@ export const Seller = () => {
   const [rate,setRate] = useState("")
 
 
+  const [viewLoadingOnAdd,setViewLoadingOnAdd] = useState(false);
+
+
   const getSalon = async () => {
-    setLoading(true);
-    const dbRef = ref(getDatabase());
-    const snapshot = await get(child(dbRef, `Seller/${auth.currentUser.uid}`));
+    if (auth.currentUser) { // Add a check here
+      setLoading(true);
+      const dbRef = ref(getDatabase());
+      const snapshot = await get(child(dbRef, `Seller/${auth.currentUser.uid}`));
       if (snapshot.exists()) {
         setbusinessName(snapshot.child("businessName").val())
         setownerName(snapshot.child("ownerName").val())
@@ -89,12 +94,11 @@ export const Seller = () => {
         setAddress(snapshot.child("address").val())
         setRate("5.0")
       } else {
+        // Handle the case when snapshot doesn't exist
       }
       setLoading(false);
+    }
   }
-  useEffect(() => {
-    getSalon();
-  }, []);
 
   const viewService = async (id) => {
     setViewServiceBoxLoading(true);
@@ -151,6 +155,7 @@ export const Seller = () => {
   }
 
 
+  /*
   const handleServiceAdd = async (e) => {
     e.preventDefault()
 
@@ -188,7 +193,52 @@ export const Seller = () => {
       alert("Failed to add service. Error occurred")
     });
 
-  }
+  }*/
+
+
+  const handleServiceAdd = async (e) => {
+    e.preventDefault();
+  
+    setViewLoadingOnAdd(true);
+    const uniqueId = uuidv4();
+    const data = {
+      serviceName: e.target.serviceName.value,
+      serviceDescription: e.target.serviceDescription.value,
+      amount: e.target.amount.value,
+      img: e.target.img.files[0],
+    };
+  
+    const firebaseData = {
+      serviceName: e.target.serviceName.value,
+      serviceDescription: e.target.serviceDescription.value,
+      amount: e.target.amount.value,
+      serviceId: uniqueId,
+      sellerId: auth.currentUser.uid,
+    };
+  
+    const db = getDatabase();
+    const dataRef = ref(db, `Service/${uniqueId}`);
+  
+    try {
+      // First, store the service data in the database
+      await set(dataRef, firebaseData);
+  
+      // Then, upload the image to Firebase Storage
+      const storageReff = storageRef(storage, `service/${uniqueId}`);
+      await uploadBytes(storageReff, data.img);
+  
+      // Alert and actions after successful upload
+      alert("Service uploaded successfully");
+      setAddService(false);
+      setViewLoadingOnAdd(false);
+      getData(); // Call the getData function to update UI with new data
+    } catch (error) {
+      console.error("Error adding service:", error);
+      alert("Failed to add service. Error occurred");
+      setViewLoadingOnAdd(false);
+    }
+  };
+  
 
   const [cards, setCards] = useState([]);
   const [images, setImages] = useState([]);
@@ -437,6 +487,10 @@ const getData = async () => {
         </div>
 
         <form onSubmit={handleServiceAdd}>
+
+            { viewLoadingOnAdd && <>
+              <h4>Loading...</h4>
+            </> }
             <div className="form-group">
               <label htmlFor="businessName">Serivce Name:</label>
               <input type="text" id="serviceName" name="serviceName" required />
